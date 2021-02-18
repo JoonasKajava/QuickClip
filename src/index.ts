@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, protocol } from 'electron';
+declare var MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: any;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -9,8 +10,15 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 1200,
+    width: 650,
+    frame: false,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      webSecurity: false // TODO: Re-enable?? Videos don't work
+    }
   });
 
   // and load the index.html of the app.
@@ -32,6 +40,13 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.whenReady().then(() => {
+  protocol.registerFileProtocol('file', (request, callback) => {
+      const url = decodeURIComponent(request.url.replace('file:///', ''));
+      callback(url);
+  });
 });
 
 app.on('activate', () => {

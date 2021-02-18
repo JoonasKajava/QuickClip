@@ -1,6 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Cabin&family=Ubuntu:wght@500&display=swap");
+
+:root {
+  --main-bg-color: #1B1F27;
+  --secondary-bg-color: #2E3740;
+  --primary-color: #536877;
+  --boost-color: #A2C6BE;
+  --white-color: #E9E7E7;
+}
+html {
+  width: 100%;
+  height: 100%;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 10px;
+  background-color: var(--main-bg-color);
+  color: var(--white-color);
+}
+
+body > div {
+  height: 100%;
+  width: 100%;
+  
+}
+
+h1, h2,h3,h4 {
+  font-family: 'Ubuntu', sans-serif;
+}
+* {
+  font-family: 'Cabin', sans-serif;
+  box-sizing: border-box;
 }

@@ -27,5 +27,9 @@
  */
 
 import './index.css';
+require("./helpers/mathExtensions")
+import './react/app';
+
+
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
