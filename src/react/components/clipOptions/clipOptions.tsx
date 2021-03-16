@@ -62,6 +62,7 @@ export const ClipOptions = observer(class ClipOptions extends React.PureComponen
                     <TextField
                         fullWidth
                         label="Speed"
+                        type="number"
                         helperText="1 = normal speed. 2 = twice as fast."
                         defaultValue={store.clip.speed}
                         error={isNaN(store.clip.speed)}

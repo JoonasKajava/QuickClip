@@ -1,4 +1,5 @@
 import { app, BrowserWindow, protocol } from 'electron';
+
 declare var MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: any;
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -10,9 +11,11 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 1200,
-    width: 650,
+    height: 725,
+    width: 1275,
+    useContentSize: true,
     frame: false,
+    backgroundColor: "#1B1F27",
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: true,

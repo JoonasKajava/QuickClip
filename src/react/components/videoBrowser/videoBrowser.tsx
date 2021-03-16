@@ -21,6 +21,7 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
     openFileDialog() {
         let browser = remote.dialog.showOpenDialog(remote.getCurrentWindow(), {
             title: "Select video",
+            defaultPath: remote.app.getPath("videos"),
             buttonLabel: "Select this video",
             properties: ["openFile"]
         });
@@ -37,11 +38,13 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
     componentDidMount() {
         var fileReg = remote.app.getPath("videos") + "/**/*.mp4";
         var thumbnailLoadStatus: Promise<IThumbnailCacheFilePair>[] = [];
-        glob(fileReg, {}, (err, matches) => {
+        glob(fileReg, {
+            "ignore": [store.settings.clipSaveLocation + "/**/*.mp4"]
+        }, (err, matches) => {
             matches.sort((a, b) => {
                 return fs.statSync(b).mtime.getTime() - fs.statSync(a).mtime.getTime();
             })
-            var prevFiles = matches.slice(0, 5);
+            var prevFiles = matches.slice(0, 3);
 
             prevFiles.forEach((file) => {
                 thumbnailLoadStatus.push(this.getThumbnail(file));
@@ -57,7 +60,7 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
     getThumbnail(filepath: string): Promise<IThumbnailCacheFilePair> {
         return new Promise((resolve, reject) => {
             var cacheFile = path.basename(filepath) + "_cache.jpg";
-            var cacheFolder = remote.app.getPath("temp").replaceAll("\\", "/") + "/QuickClip";
+            var cacheFolder = store.settings.cacheLocation.replaceAll("\\", "/");
             var cachePath = cacheFolder + "/" + cacheFile;
             if (fs.existsSync(cacheFolder + "/" + cacheFile)) {
                 resolve({
@@ -117,7 +120,7 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
             {this.state.thumbnails != null &&
                 <Grid container item spacing={4} justify="center" style={{ margin: 0, width: "100%" }}>
                     {this.state.thumbnails.map((thumbnail) => {
-                        return <Grid item>
+                        return <Grid key={thumbnail.thumbnail} item>
                             <VideoCard onClick={(file) => store.video.loadFile(file)} file={thumbnail.file} thumbnail={thumbnail.thumbnail} />
                         </Grid>
                     })}

@@ -2,14 +2,19 @@ import { Box, Button, Icon, makeStyles, Menu, MenuItem } from "@material-ui/core
 import { remote } from "electron";
 import React, { useState } from "react";
 import store from "../../../store/store";
+import { ITitleBarProps } from "./titleBarTypes";
 
 
 const useStyles = makeStyles({
     titleBar: {
         width: "100%",
+        position: "sticky",
+        top: 0,
+        backgroundColor: "var(--main-bg-color)",
         display: "flex",
         justifyContent: "space-between",
-        marginBottom: 10
+        marginBottom: 10,
+        paddingTop: 10
     },
     titleText: {
         "-webkit-app-region": "drag",
@@ -32,7 +37,7 @@ const useStyles = makeStyles({
     }
 });
 
-export const TitleBar = () => {
+export const TitleBar = (props: ITitleBarProps) => {
     const styles = useStyles();
     const [menuOpen, setMenuOpen] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
@@ -58,7 +63,7 @@ export const TitleBar = () => {
 
             <Menu keepMounted anchorEl={menuAnchorEl} open={menuOpen} onClose={closeMenu}>
                 <MenuItem onClick={() => { store.video.setSrc(null); closeMenu() }}>Open file</MenuItem>
-                <MenuItem>Settings</MenuItem>
+                 {store.settings && <MenuItem onClick={() => {props.onSettingsOpen(); closeMenu()}}>Settings</MenuItem>}
             </Menu>
         </div>
         <div className={styles.titleButtons}>

@@ -69,6 +69,11 @@ export default class Video {
         let command = ffmpeg(file);
 
         command.ffprobe((err, data) => {
+            if(err) {
+                console.dir(err);
+                store.enqueueSnackbar(err.message, {variant: "error"});
+            };
+
             if (data) {
                 this.setSrc(data);
                 store.clip.setStart(null);

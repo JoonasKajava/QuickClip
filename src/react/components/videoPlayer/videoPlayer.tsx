@@ -7,7 +7,12 @@ import Button from "@material-ui/core/Button";
 import { createStyles, Grid, Icon, withStyles } from "@material-ui/core";
 
 const styles = createStyles({
-    videoPlayer: {}
+    videoPlayer: {
+        width: "100%",
+        "&:focus": {
+            outline: "none"
+        }
+    }
 })
 
 export const VideoPlayer = observer(withStyles(styles)(class VideoPlayer extends React.PureComponent<IVideoPlayerProps<typeof styles>, IVideoPlayerState> {
@@ -23,9 +28,16 @@ export const VideoPlayer = observer(withStyles(styles)(class VideoPlayer extends
 
     componentDidMount() {
         this.attachUpdater();
+        if(this.videoElement.current) {
+            this.videoElement.current.volume = Math.max(Math.min(store.settings.videoPlayerVolume, 1), 0);
+        }
     }
     attachUpdater() {
         this.videoElement.current?.addEventListener('timeupdate', this.updateCurrentTime.bind(this))
+        this.videoElement.current?.addEventListener('volumechange', (ev) => {
+            store.settings.setVideoPlayerVolume(this.videoElement.current!.volume);
+            store.saveSettings();
+        });
     }
 
     componentDidUpdate(prevProps: IVideoPlayerProps<typeof styles>) {

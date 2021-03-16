@@ -1,3 +1,5 @@
+import { SnackbarMessage, OptionsObject, SnackbarKey } from "notistack";
+
 export interface IClipProgress {
     currentFps: number;
     currentKbps: number;
@@ -5,4 +7,10 @@ export interface IClipProgress {
     percent: number;
     targetSize: number;
     timemark: string;
+}
+
+export interface INotification {
+    key: SnackbarKey;
+    message: SnackbarMessage;
+    options?: OptionsObject;
 }

@@ -28,6 +28,7 @@
 
 import './index.css';
 require("./helpers/mathExtensions")
+
 import './react/app';
 
 
