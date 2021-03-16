@@ -1,6 +1,6 @@
 import { remote } from "electron";
 import { makeAutoObservable } from "mobx";
-import { createViewModel } from "mobx-utils";
+import path from 'path';
 
 
 export default class Settings {
@@ -16,4 +16,6 @@ export default class Settings {
     setVideoPlayerVolume(newVolume: number) {
         this.videoPlayerVolume = Math.max(Math.min(newVolume,1), 0);
     }
+
+    resourcesFolder = process.env.NODE_ENV === 'development' ? path.resolve("./resources") : process.resourcesPath;
 }

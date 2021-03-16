@@ -1,5 +1,7 @@
-import { spawn } from "child_process";
+import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import moment from "moment";
+import path from 'path';
+import store from "../store/store";
 
 export default class Butterflow {
 
@@ -34,6 +36,8 @@ export default class Butterflow {
         this.framerate = framerate;
     }
 
+    currentProcess: ChildProcessWithoutNullStreams | undefined;
+
 
     processVideo(onProgress?: (progress: number) => void): Promise<string | undefined> {
         return new Promise((resolve, reject) => {
@@ -46,7 +50,7 @@ export default class Butterflow {
             if (this.start) startMoment = moment.utc(moment.duration(this.start, "seconds").asMilliseconds()).format("HH:mm:ss");
             if (this.end) endMoment = moment.utc(moment.duration(this.end, "seconds").asMilliseconds()).format("HH:mm:ss");
 
-            const process = spawn("butterflow", [
+            this.currentProcess = spawn("butterflow", [
                 "-audio",
                 "-r",
                 this.framerate.toString(),
@@ -56,11 +60,11 @@ export default class Butterflow {
                 this.output,
                 `-v`,
                 `${this.input}`
-            ], { cwd: "./butterflow/" });
-            process.stdout.on("data", data => {
+            ], { cwd: path.join(store.settings.resourcesFolder, 'butterflow') });
+            this.currentProcess.stdout.on("data", data => {
                 console.log(`stdout: ${data}`);
             });
-            process.stderr.on("data", (data: Uint8Array) => {
+            this.currentProcess.stderr.on("data", (data: Uint8Array) => {
                 const re = /([\d\.]+)%/g;
                 const matches = re.exec(data.toString());
                 if(matches && matches.length >= 2 && onProgress) {
@@ -69,25 +73,25 @@ export default class Butterflow {
                 console.dir(re.exec(data.toString()));
                 console.log(`stderr: ${data}`);
             })
-            process.on("close", data => {
+            this.currentProcess.on("close", data => {
                 console.log(`Closed: ${data}`);
             })
-            process.on("exit", data => {
+            this.currentProcess.on("exit", data => {
                 data === 0 ? resolve(this.output) : reject("Generic error occured");
                 console.log(`Exit: ${data}`);
             });
         });
     }
 
-    static canUseHardwareAcceleration() {
+    static canUseHardwareAcceleration(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            const d = spawn("butterflow", ["-d"], { cwd: "./butterflow/" });
+            const d = spawn("butterflow", ["-d"], { cwd: path.join(store.settings.resourcesFolder, 'butterflow') });
 
             d.stdout.on("data", data => {
                 resolve(new RegExp(/Compatible\s*\:\s*Yes/g).test(data));
             });
             d.stderr.on("data", data => {
-                reject(data);
+                reject(false);
                 console.log(`stderr: ${data}`)
             });
         })

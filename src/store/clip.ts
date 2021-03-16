@@ -116,23 +116,25 @@ export default class Clip {
             shell.openPath(store.settings.clipSaveLocation);
         },
         onError: (name: string) => {
-            fs.unlinkSync(name);
+            if(fs.existsSync(name)) fs.unlinkSync(name);
             this.progress.currentlyProgressing = false;
             remote.getCurrentWindow().setProgressBar(0);
         }
     }
 
+    butter : Butterflow | null = null;
+
     private butterflowProcessing(src: string, out: string) {
         this.progress.stage = this.progressStage.BUTTERFLOW;
         this.progress.currentlyProgressing = true;
-        const butter = new Butterflow();
-        butter.setInput(src);
-        butter.setOutput(out);
-        butter.setFramerate(this.framerate);
-        butter.setSpeed(this.speed);
-        butter.setStart(this.start);
-        butter.setEnd(this.end);
-        return butter.processVideo((progress) => {
+        this.butter = new Butterflow();
+        this.butter.setInput(src);
+        this.butter.setOutput(out);
+        this.butter.setFramerate(this.framerate);
+        this.butter.setSpeed(this.speed);
+        this.butter.setStart(this.start);
+        this.butter.setEnd(this.end);
+        return this.butter.processVideo((progress) => {
             this.progress.percent = progress / 100;
         });
     }
@@ -194,6 +196,7 @@ export default class Clip {
 
         if (butterflow_enabled) {
             this.butterflowProcessing(store.video.location, cacheFile).then((processedFile: string | undefined) => {
+                this.butter = null;
                 if (!processedFile) { store.enqueueSnackbar("Butterflow processing failed. Canceled FFmpeg processing", { variant: "error" }); return; }
                 this.ffmpegProcessing(processedFile, finalFile, true).then((out: string) => {
                     fs.unlink(cacheFile, () => {});
@@ -228,5 +231,12 @@ export default class Clip {
 
     cancel() {
         this.command?.kill("SIGKILL");
+        this.butter?.currentProcess?.kill();
+        this.progress = {
+            stage: 0,
+            currentlyProgressing: false,
+            percent: 0,
+            framerate: 0
+        };
     }
 }

@@ -15,6 +15,13 @@ import Butterflow from "../../../helpers/butterflow";
 export const SettingsDialog = observer((props: ISettingsDialogProps) => {
 
     const [vm] = useState(createViewModel(store.settings))
+    const [canHardwareAccelerate, setCanHardwareAccelerate] = useState(false);
+    Butterflow.canUseHardwareAcceleration().then((can: boolean) => {
+        setCanHardwareAccelerate(can);
+    }).catch(() => {
+        
+    })
+
     const Save = () => {
         vm.submit();
         store.saveSettings();
@@ -78,7 +85,7 @@ export const SettingsDialog = observer((props: ISettingsDialogProps) => {
                     <TableBody>
                         <TableRow>
                             <TableCell>Butterflow hardware acceleration</TableCell>
-                            <TableCell>{Butterflow.canUseHardwareAcceleration() ? "Enabled" : "Disabled"}</TableCell>
+                            <TableCell>{canHardwareAccelerate ? "Enabled" : "Disabled"}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>

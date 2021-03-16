@@ -1,4 +1,5 @@
 import { createMuiTheme, Grid, makeStyles, Slide, ThemeProvider, Zoom } from '@material-ui/core';
+import Ffmpeg from 'fluent-ffmpeg';
 import { observer } from 'mobx-react';
 import { SnackbarProvider } from 'notistack';
 import React, { useState } from 'react';
@@ -14,7 +15,10 @@ import { SettingsDialog } from './components/settingsDialog/settingsDialog';
 import { TitleBar } from './components/titleBar/titleBar';
 import { VideoBrowser } from './components/videoBrowser/videoBrowser';
 import { VideoPlayer } from './components/videoPlayer/videoPlayer';
+import path from 'path';
 
+Ffmpeg.setFfmpegPath(path.join(store.settings.resourcesFolder, 'ffmpeg/ffmpeg.exe'));
+Ffmpeg.setFfprobePath(path.join(store.settings.resourcesFolder, 'ffmpeg/ffprobe.exe'));
 
 const theme = createMuiTheme({
   palette: {
