@@ -3,7 +3,7 @@ import React from "react";
 import fs from 'fs';
 import store from "../../../store/store";
 import { observer } from "mobx-react";
-import { Button, Grid, Icon, TextField } from "@material-ui/core";
+import { Button, CircularProgress, Grid, Icon, TextField } from "@material-ui/core";
 import { glob } from "glob";
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
@@ -68,7 +68,7 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
                     thumbnail: cachePath
                 });
             } else {
-                    ffmpeg(filepath)
+                ffmpeg(filepath)
                     .screenshot({
                         count: 1,
                         timestamps: ['99%'],
@@ -117,14 +117,23 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
                     <Button variant="outlined" onClick={this.openFileDialog.bind(this)} startIcon={<Icon>folder_open</Icon>}>Select</Button>
                 </Grid>
             </Grid>
-            {this.state.thumbnails != null &&
+            {this.state.thumbnails != null ?
                 <Grid container item spacing={4} justify="center" style={{ margin: 0, width: "100%" }}>
                     {this.state.thumbnails.map((thumbnail) => {
                         return <Grid key={thumbnail.thumbnail} item>
                             <VideoCard onClick={(file) => store.video.loadFile(file)} file={thumbnail.file} thumbnail={thumbnail.thumbnail} />
                         </Grid>
                     })}
-                </Grid>}
+                </Grid> :
+                <Grid container item spacing={2} justify="center" style={{ margin: 0, width: "100%" }}>
+                    <Grid item>
+                        <CircularProgress />
+                    </Grid>
+                    <Grid item>
+                        Loading latest videos...
+                    </Grid>
+                </Grid>
+            }
         </Grid>
     }
 })

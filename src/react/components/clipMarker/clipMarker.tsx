@@ -28,13 +28,13 @@ export const ClipMarker = observer((props: IClipMakerProps) => {
     if (store.clip.start) {
         marks.push({
             value: store.clip.start,
-            label: store.clip.start
+            label: store.clip.start.toFixed(1)
         })
     }
     if (store.clip.end) {
         marks.push({
             value: store.clip.end,
-            label: store.clip.end
+            label: store.clip.end.toFixed(1)
         })
     }
 

@@ -42,33 +42,33 @@ export default class Butterflow {
     processVideo(onProgress?: (progress: number) => void): Promise<string | undefined> {
         return new Promise((resolve, reject) => {
             if (!this.input) return reject("Set input");
-            if(!this.output) return reject("Set output");
-            if (!this.speed) return reject("Set speed");
-            if (!this.framerate) return reject("Set framerate");
+            if (!this.output) return reject("Set output");
 
-            let startMoment, endMoment = null;
-            if (this.start) startMoment = moment.utc(moment.duration(this.start, "seconds").asMilliseconds()).format("HH:mm:ss");
-            if (this.end) endMoment = moment.utc(moment.duration(this.end, "seconds").asMilliseconds()).format("HH:mm:ss");
+            let params = ["-audio"];
 
-            this.currentProcess = spawn("butterflow", [
-                "-audio",
-                "-r",
-                this.framerate.toString(),
-                "-s",
-                `a=${startMoment || "0"},b=${endMoment || "end"},spd=${this.speed}`,
-                "-o",
-                this.output,
-                `-v`,
-                `${this.input}`
-            ], { cwd: path.join(store.settings.resourcesFolder, 'butterflow') });
+            if (this.framerate) {
+                params.push("-r", this.framerate.toString());
+            }
+
+            if (this.speed) {
+                let startMoment, endMoment = null;
+                if (this.start) startMoment = moment.utc(moment.duration(this.start, "seconds").asMilliseconds()).format("HH:mm:ss");
+                if (this.end) endMoment = moment.utc(moment.duration(this.end, "seconds").asMilliseconds()).format("HH:mm:ss");
+                params.push("-s", `a=${startMoment || "0"},b=${endMoment || "end"},spd=${this.speed}`);
+            }
+
+            params.push("-o", this.output, "-v", this.input);
+
+
+            this.currentProcess = spawn("butterflow", params, { cwd: path.join(store.settings.resourcesFolder, 'butterflow') });
             this.currentProcess.stdout.on("data", data => {
                 console.log(`stdout: ${data}`);
             });
             this.currentProcess.stderr.on("data", (data: Uint8Array) => {
                 const re = /([\d\.]+)%/g;
                 const matches = re.exec(data.toString());
-                if(matches && matches.length >= 2 && onProgress) {
-                    onProgress(parseFloat(matches[1]));
+                if (matches && matches.length >= 2 && onProgress) {
+                    onProgress(parseFloat(matches[1]) / 100);
                 }
                 console.dir(re.exec(data.toString()));
                 console.log(`stderr: ${data}`);

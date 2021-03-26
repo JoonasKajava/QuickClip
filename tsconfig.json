@@ -15,6 +15,7 @@
     "strict": true,
     "baseUrl": ".",
     "jsx": "react",
+    "downlevelIteration": true,
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
