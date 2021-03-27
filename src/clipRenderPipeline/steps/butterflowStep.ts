@@ -8,32 +8,36 @@ export default class ButterflowStep implements IPipelineStep {
     onProgress: Action<number> | undefined;
     name: string = "ButterFlow";
     description: string = "Handles slowmotion.";
+
+    currentButter: Butterflow | null = null;
+
     perform(input: string, output: string, clip: clip, actionsPerformed: PipelineAction[]): Promise<IPipelineStepOutput> {
         return new Promise(async (resolve, reject) => {
-            const butter = new Butterflow();
+            this.currentButter = new Butterflow();
             var actionsDone = [];
-            butter.setInput(input);
-            butter.setOutput(output);
+            this.currentButter.setInput(input);
+            this.currentButter.setOutput(output);
             if (!actionsPerformed.includes(PipelineAction.Framerate)) {
-                butter.setFramerate(clip.framerate);
+                this.currentButter.setFramerate(clip.framerate);
                 actionsDone.push(PipelineAction.Framerate);
             }
             
             if (!actionsPerformed.includes(PipelineAction.Speed)) {
-                butter.setSpeed(clip.speed);
+                this.currentButter.setSpeed(clip.speed);
                 actionsDone.push(PipelineAction.Speed);
             } 
             if (!actionsPerformed.includes(PipelineAction.Cut)) {
-                butter.setStart(clip.start);
-                butter.setEnd(clip.end);
+                this.currentButter.setStart(clip.start);
+                this.currentButter.setEnd(clip.end);
                 actionsDone.push(PipelineAction.Cut);
             }
             try {
-                await butter.processVideo(this.onProgress);
+                await this.currentButter.processVideo(this.onProgress);
             }catch(e) {
                 reject(e);
             }
             
+            this.currentButter = null;
             resolve({
                 output: output,
                 actionsDone: [
@@ -43,5 +47,10 @@ export default class ButterflowStep implements IPipelineStep {
                 ]
             })
         });
+    }
+
+
+    cancel() {
+        this.currentButter?.currentProcess?.kill();
     }
 }

@@ -1,4 +1,4 @@
-import Ffmpeg from "fluent-ffmpeg";
+import Ffmpeg, { FfmpegCommand } from "fluent-ffmpeg";
 import moment from "moment";
 import clip from "../../store/clip";
 import { PipelineAction } from "../pipeline";
@@ -17,10 +17,13 @@ export default class ffmpegStep implements IPipelineStep {
     onProgress: Action<number> | undefined;
     name: string = "FFmpeg";
     description: string = "Scaling and bitrate management";
+
+    command: FfmpegCommand | null = null;
+
     perform(input: string, output: string, clip: clip, actionsPerformed: PipelineAction[]): Promise<IPipelineStepOutput> {
         return new Promise<IPipelineStepOutput>((resolve, reject) => {
-            const command = Ffmpeg(input);
-            command.inputFormat("mp4");
+            this.command = Ffmpeg(input);
+            this.command.inputFormat("mp4");
             let filters = [];
             var actionsDone: PipelineAction[] = [];
             if (!actionsPerformed.includes(PipelineAction.Scale)) {
@@ -37,32 +40,33 @@ export default class ffmpegStep implements IPipelineStep {
             }
 
             if (!actionsPerformed.includes(PipelineAction.Cut) && clip.start && clip.end) {
-                command.seekInput(clip.start);
-                command.duration(clip.duration);
+                this.command.seekInput(clip.start);
+                this.command.duration(clip.duration);
                 actionsDone.push(PipelineAction.Cut);
             }
 
-            command.outputOptions(['-filter:v ' + filters.join(",")]);
+            this.command.outputOptions(['-filter:v ' + filters.join(",")]);
 
             if (clip.bitrate) {
-                command.videoBitrate(clip.bitrate.toKiloBits());
+                this.command.videoBitrate(clip.bitrate.toKiloBits());
             }
 
-            command.outputFormat("mp4");
-            command.output(output);
+            this.command.outputFormat("mp4");
+            this.command.output(output);
 
 
-            command.on('progress', (progress: IClipProgress) => {
+            this.command.on('progress', (progress: IClipProgress) => {
                 if (this.onProgress) {
                     this.onProgress(moment.duration(progress.timemark).asMilliseconds() / moment.duration(clip.duration, 'seconds').asMilliseconds());
                 }
             });
 
-            command.on('error',() => {
+            this.command.on('error',() => {
                 reject("Error");
             });
 
-            command.on('end', () => {
+            this.command.on('end', () => {
+                this.command = null;
                 resolve({
                     output: output,
                     actionsDone: actionsDone
@@ -70,9 +74,12 @@ export default class ffmpegStep implements IPipelineStep {
             });
 
 
-            command.run();
+            this.command.run();
 
         });
     }
 
+    cancel() {
+        this.command?.kill("SIGKILL");
+    }
 }

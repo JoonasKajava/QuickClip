@@ -9,7 +9,7 @@ import generate from 'project-name-generator';
 
 export default class Clip {
 
-    name: string = generate({words: 3}).dashed;
+    name: string = generate({ words: 3 }).dashed;
 
     start: number | null = null;
     end: number | null = null;
@@ -93,16 +93,18 @@ export default class Clip {
         this.create.bind(this)
     }
 
+    currentPipeline: Pipeline | null = null;
 
     create() {
         if (!store.video.location) return;
-        //const butterflow_enabled = this.speed != 1;
         const finalFile = tryGetFilePath(store.settings.clipSaveLocation, this.name + ".mp4");
 
-        new Pipeline().run(store.video.location, finalFile, this).then((result) => {
+        this.currentPipeline = new Pipeline();
+
+        this.currentPipeline.run(store.video.location, finalFile, this).then((result) => {
             shell.openPath(store.settings.clipSaveLocation);
         }).catch((e) => {
-            store.enqueueSnackbar(`Pipeline error: ${e}`, {variant: "error"});
+            store.enqueueSnackbar(`Pipeline error: ${e}`, { variant: "error" });
         }).finally(() => {
             this.progress.currentlyProgressing = false;
             this.progress.percent = 0;
@@ -120,15 +122,14 @@ export default class Clip {
 
 
     cancel() {
-       /* this.command?.kill("SIGKILL");
-        this.butter?.currentProcess?.kill();
-        this.progress = {
-            stage: 0,
-            currentlyProgressing: false,
-            percent: 0,
-            framerate: 0
-        };
+        if (!this.currentPipeline) return;
 
-        */
+        this.currentPipeline.cancel();
+
+
+        this.progress.currentlyProgressing = false;
+        this.progress.percent = 0;
+        this.progress.stage = 0;
+        remote.getCurrentWindow().setProgressBar(0);
     }
 }

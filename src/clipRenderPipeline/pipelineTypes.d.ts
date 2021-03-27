@@ -10,6 +10,7 @@ export interface IPipelineStep {
     description: string;
     onProgress: Action<number> | undefined; 
     perform: (input: string, output: string, clip: Clip, actionsPerformed: PipelineAction[]) => Promise<IPipelineStepOutput>;
+    cancel: () => void;
 }
 
 export interface IPipelineStepOutput {

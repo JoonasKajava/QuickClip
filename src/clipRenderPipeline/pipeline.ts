@@ -19,6 +19,8 @@ export enum PipelineAction {
 
 export default class Pipeline {
 
+    currentStep : IPipelineStep | null = null;
+
     async run(input: string, output: string, clip: Clip) : Promise<IPipelineOutput> {
 
         return new Promise(async (resolve, reject) => {
@@ -37,6 +39,7 @@ export default class Pipeline {
             var workfile = input;
             var cacheItems = [];
             for(const [index, step] of pipelineSteps.entries()) {
+                this.currentStep = step;
                 clip.progress.stage = index;
                 const isLast = index >= (pipelineSteps.length-1);
                 const out = isLast ? output : tryGetFilePath(store.settings.cacheLocation, clip.name + ".mp4");
@@ -75,6 +78,6 @@ export default class Pipeline {
 
 
     cancel() {
-
+        this.currentStep?.cancel();
     }
 } 
