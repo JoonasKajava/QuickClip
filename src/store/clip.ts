@@ -102,7 +102,7 @@ export default class Clip {
         this.currentPipeline = new Pipeline();
 
         this.currentPipeline.run(store.video.location, finalFile, this).then((result) => {
-            shell.openPath(store.settings.clipSaveLocation);
+            shell.showItemInFolder(result.output);
         }).catch((e) => {
             store.enqueueSnackbar(`Pipeline error: ${e}`, { variant: "error" });
         }).finally(() => {

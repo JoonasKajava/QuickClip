@@ -45,7 +45,11 @@ export default class ffmpegStep implements IPipelineStep {
                 actionsDone.push(PipelineAction.Cut);
             }
 
-            this.command.outputOptions(['-filter:v ' + filters.join(",")]);
+            this.command.outputOptions([
+                '-filter:v ' + filters.join(","),
+                '-preset veryslow'
+            ]);
+            
 
             if (clip.bitrate) {
                 this.command.videoBitrate(clip.bitrate.toKiloBits());
