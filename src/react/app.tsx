@@ -19,8 +19,8 @@ import path from 'path';
 
 declare let module: {hot:any}
 
-Ffmpeg.setFfmpegPath(path.join(store.settings.resourcesFolder, 'ffmpeg/ffmpeg.exe'));
-Ffmpeg.setFfprobePath(path.join(store.settings.resourcesFolder, 'ffmpeg/ffprobe.exe'));
+Ffmpeg.setFfmpegPath(path.join(store.settings.resourcesFolder, 'butterflow/lib/ffmpeg/ffmpeg.exe'));
+Ffmpeg.setFfprobePath(path.join(store.settings.resourcesFolder, 'butterflow/lib/ffmpeg/ffprobe.exe'));
 
 
 const theme = createMuiTheme({
