@@ -2,7 +2,7 @@
   "name": "quickclip",
   "productName": "QuickClip",
   "version": "1.0.3",
-  "description": "My Electron application description",
+  "description": "Create Clips fast using QuickClip",
   "main": "./.webpack/main",
   "scripts": {
     "start": "electron-forge start",
