@@ -16,11 +16,16 @@ import { TitleBar } from './components/titleBar/titleBar';
 import { VideoBrowser } from './components/videoBrowser/videoBrowser';
 import { VideoPlayer } from './components/videoPlayer/videoPlayer';
 import path from 'path';
+import { remote } from 'electron';
 
 declare let module: {hot:any}
 
 Ffmpeg.setFfmpegPath(path.join(store.settings.resourcesFolder, 'butterflow/lib/ffmpeg/ffmpeg.exe'));
 Ffmpeg.setFfprobePath(path.join(store.settings.resourcesFolder, 'butterflow/lib/ffmpeg/ffprobe.exe'));
+
+if(remote.process.argv[1]) {
+  store.video.loadFile(remote.process.argv[1]);
+}
 
 
 const theme = createMuiTheme({
@@ -47,7 +52,7 @@ const useStyles = makeStyles({
 
 const App = observer(() => {
   const [videoSelectorVisible, setVideoSelectorVisible] = useState(true);
-  const [editorVisible, setEditorVisible] = useState(false);
+  const [editorVisible, setEditorVisible] = useState(store.video.isValid);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const classes = useStyles();
 

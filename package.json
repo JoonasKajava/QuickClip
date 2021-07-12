@@ -1,7 +1,7 @@
 {
   "name": "quickclip",
   "productName": "QuickClip",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Create Clips fast using QuickClip",
   "main": "./.webpack/main",
   "scripts": {

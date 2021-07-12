@@ -4,6 +4,7 @@ import path from 'path';
 import FileSize from "../helpers/filesize";
 import ffmpeg from 'fluent-ffmpeg';
 import store from "./store";
+import fs from 'fs';
 
 export default class Video {
     src: FfprobeData | null = null;
@@ -36,19 +37,19 @@ export default class Video {
     }
 
     get resolution() {
-        if(!this.videoStream) return null;
+        if (!this.videoStream) return null;
         return this.videoStream.width + "x" + this.videoStream.height;
     }
 
     get framerate() {
-        if(!this.videoStream) return null;
+        if (!this.videoStream) return null;
         return parseInt(this.videoStream.r_frame_rate?.split("/")[0] ?? "0");
     }
 
     get videoStream() {
         return this.src?.streams.find(x => x.codec_type === 'video');
     }
-    
+
     get audioStream() {
         return this.src?.streams.find(x => x.codec_type === 'audio');
     }
@@ -59,19 +60,20 @@ export default class Video {
 
     setSrc(src: FfprobeData | null) {
         this.src = src;
-        if(src === null) {
+        if (src === null) {
             store.clip.setStart(null);
             store.clip.setEnd(null);
         }
     }
 
     loadFile(file: string) {
+        if (!this.testFile(file)) return;
         let command = ffmpeg(file);
 
         command.ffprobe((err, data) => {
-            if(err) {
+            if (err) {
                 console.dir(err);
-                store.enqueueSnackbar(err.message, {variant: "error"});
+                store.enqueueSnackbar(err.message, { variant: "error" });
             };
 
             if (data) {
@@ -80,5 +82,13 @@ export default class Video {
                 store.clip.setEnd(null);
             }
         });
+    }
+
+    testFile(file: string): boolean {
+        try {
+            return fs.existsSync(file);
+        } catch (err) {
+            return false;
+        }
     }
 }

@@ -28,10 +28,7 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
 
         browser.then((returnValue) => {
             if (returnValue.canceled || !returnValue.filePaths[0]) return;
-
-            if (this.testFile(returnValue.filePaths[0])) {
-                store.video.loadFile(returnValue.filePaths[0]);
-            }
+            store.video.loadFile(returnValue.filePaths[0]);
         });
     }
 
@@ -88,18 +85,8 @@ export const VideoBrowser = observer(class VideoBrowser extends React.PureCompon
         });
     }
 
-    testFile(file: string): boolean {
-        try {
-            return fs.existsSync(file);
-        } catch (err) {
-            return false;
-        }
-    }
-
     onTextChange(event: React.ChangeEvent<HTMLInputElement>) {
-        if (this.testFile(event.target.value)) {
-            store.video.loadFile(event.target.value);
-        }
+        store.video.loadFile(event.target.value);
     }
 
     render() {
